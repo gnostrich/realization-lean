@@ -7,4 +7,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
       - run: lake build
-      - run: lake exe comparator   # added at Stage 5
+      - run: lake exe comparator
