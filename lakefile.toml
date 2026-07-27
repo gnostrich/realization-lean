@@ -1,0 +1,28 @@
+name = "RealizationLean"
+defaultTargets = ["RealizationLean", "Challenge", "Solution"]
+
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.32.0"
+
+# The development. Sources live under `lean/` (mirroring the layout of the
+# sibling repository `certified-positivity`), but are wired into lake directly
+# via `srcDir` rather than copied into place by CI.
+[[lean_lib]]
+name = "RealizationLean"
+srcDir = "lean"
+globs = ["RealizationLean", "RealizationLean.+"]
+
+# The statement registry: Mathlib-only, every proof `sorry`.
+[[lean_lib]]
+name = "Challenge"
+
+# The comparator bridge: statements byte-identical to `Challenge.lean`,
+# proofs deferring to the development.
+[[lean_lib]]
+name = "Solution"
