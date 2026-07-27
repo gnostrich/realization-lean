@@ -138,5 +138,49 @@ theorem tilt_displaces_uniquely {n : ℕ} (K : Matrix (Fin n) (Fin n) ℝ)
     rw [hs₁, Matrix.mulVec_add, hs₀, Matrix.mulVec_mulVec, hright,
       Matrix.one_mulVec]
 
+/-- Aristotle (project d62e2fde); faithfulness audit passed. -/
+lemma symmetric_mulVec_dotProduct {n : ℕ}
+    (H : Matrix (Fin n) (Fin n) 𝕜) (hH : Hᵀ = H)
+    (u v : Fin n → 𝕜) :
+    u ⬝ᵥ H.mulVec v = v ⬝ᵥ H.mulVec u := by
+  simp [dotProduct, Matrix.mulVec, Finset.mul_sum, mul_comm, mul_left_comm]
+  -- Goal: ∑ x, ∑ x_1, H x x_1 * (u x * v x_1) = ∑ x, ∑ x_1, H x x_1 * (u x_1 * v x)
+  rw [Finset.sum_comm]
+  -- Now we need to show ∑ x_1, ∑ x, H x x_1 * (u x * v x_1) = ∑ x, ∑ x_1, H x x_1 * (u x_1 * v x)
+  congr 1
+  ext i
+  congr 1
+  ext j
+  have hsym : H j i = H i j := by simpa using (congrFun (congrFun hH j) i).symm
+  rw [hsym]
+
+lemma symmetric_edge_difference {n : ℕ}
+    (H : Matrix (Fin n) (Fin n) 𝕜) (hH : Hᵀ = H)
+    (u v : Fin n → 𝕜) :
+    (u + v) ⬝ᵥ H.mulVec (v - u) =
+      v ⬝ᵥ H.mulVec v - u ⬝ᵥ H.mulVec u := by
+  simp only [add_dotProduct, Matrix.mulVec_sub, dotProduct_sub]
+  rw [symmetric_mulVec_dotProduct H hH u v]
+  ring
+
+lemma sum_succ_sub_castSucc {m : ℕ} (f : Fin (m + 1) → 𝕜) :
+    ∑ i : Fin m, (f i.succ - f i.castSucc) = f (Fin.last m) - f 0 := by
+  induction m with
+  | zero => simp
+  | succ m ih =>
+    simp only [Fin.sum_univ_castSucc]
+    have ih' := ih (fun i => f i.castSucc)
+    simp_all
+
+theorem symmetric_loop_work_zero {n m : ℕ} [NeZero (2 : 𝕜)]
+    (H : Matrix (Fin n) (Fin n) 𝕜) (hH : Hᵀ = H)
+    (x : Fin (m + 1) → Fin n → 𝕜) (hclosed : x (Fin.last m) = x 0) :
+    ∑ i : Fin m, (2⁻¹ : 𝕜) •
+      ((x i.castSucc + x i.succ) ⬝ᵥ H.mulVec (x i.succ - x i.castSucc)) = 0 := by
+  simp_rw [symmetric_edge_difference H hH]
+  rw [← Finset.smul_sum]
+  have ht := sum_succ_sub_castSucc (fun j => x j ⬝ᵥ H.mulVec (x j))
+  rw [ht, hclosed, sub_self, smul_zero]
+
 end Solution
 end Realization
