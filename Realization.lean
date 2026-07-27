@@ -6,3 +6,4 @@ import Realization.Solution.StateSpace
 import Realization.Solution.Kronecker
 import Realization.Solution.PartialRealization
 import Realization.Solution.BlockS
+import Realization.Solution.Defects
